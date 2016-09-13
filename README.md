@@ -25,4 +25,12 @@ Apache Virtualhost :
         CustomLog /var/log/apache2/ndm<changeme>.log common
 </VirtualHost>
 
+Mongo php driver:
+-----------------
+pecl install mongo
 
+PHP.ini:
+--------
+
+short_open_tag = On
+extension=mongo.so

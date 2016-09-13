@@ -18,7 +18,7 @@
         <h1><? echo($PAGE['HEADER_TITLE']); ?></h1>
       </div>
       <div id="ticketsdiv">
-        <h2>Visitors without tickets</h2>
+        <h2>Tickets sold</h2>
         <input class="button" type="button" value="-" onclick="removeTicket();"/>
         <input class="button" type="button" value="+" onclick="addTicket();" />
       </div>
