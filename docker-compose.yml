@@ -1,0 +1,45 @@
+version: '3.7'
+services:
+  site:
+    image: canelrom1/abcm-checkindesk:latest
+    #depends_on:
+    #  - db
+    networks:
+      - lan
+      - wan
+    ports:
+      - 80:80
+    environment:
+      CID_USER: root
+      CID_PWD: password
+      #CID_PORT: 27017
+      CID_HOST: db
+      CID_DB: Ndm
+      CID_COLLECTION: Ndm19
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 1m
+      timeout: 30s
+      retries: 3
+      start_period: 0s
+
+  db:
+    image: mongo
+    restart: always
+    networks:
+      - lan
+    volumes:
+      - checkindesk-db:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+networks:
+  wan:
+  lan:
+
+volumes:
+  checkindesk-db:
+    driver: local
+
+# vim: ft=yaml tw=80 et ts=2 sw=2 sts=2

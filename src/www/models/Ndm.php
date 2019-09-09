@@ -14,9 +14,9 @@ class Ndm {
   public function __construct() {
     global $CONFIG;
 
-    // $this->con = new MongoClient('mongodb://'.$CONFIG['DB_USER'].':'.$CONFIG['DB_PWD'].'@'.$CONFIG['DB_HOST'].":".$CONFIG['DB_PORT']);
+    $this->con = new MongoClient('mongodb://'.$CONFIG['DB_USER'].':'.$CONFIG['DB_PWD'].'@'.$CONFIG['DB_HOST'].":".$CONFIG['DB_PORT']);
 
-    $this->con = new MongoClient('mongodb://'.$CONFIG['DB_HOST'].":".$CONFIG['DB_PORT']);
+    //$this->con = new MongoClient('mongodb://'.$CONFIG['DB_HOST'].":".$CONFIG['DB_PORT']);
 
     $this->db = $this->con->$CONFIG['DB_NAME'];
     $this->col = $this->db->$CONFIG['COL_NAME'];
