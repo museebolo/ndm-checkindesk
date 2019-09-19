@@ -35,9 +35,9 @@ short_open_tag = On
 extension=mongo.so
 
 ## ToDo List
-* Faire un page pour visualiser les statistiques
-* Migrer ver PHP7
-* Migrer dans un container alpine
+* [ ] Faire un page pour visualiser les statistiques
+* [ ] Migrer ver PHP7
+* [ ] Migrer dans un container alpine
 
 ## Change Log
 * Adaptation pour Docker (Rom1)
