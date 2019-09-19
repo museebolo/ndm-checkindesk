@@ -7,6 +7,8 @@ services:
     networks:
       - lan
       - wan
+    ports:
+      - 80:80
     environment:
       CID_USER: root
       CID_PWD: password
@@ -14,11 +16,6 @@ services:
       CID_HOST: db
       CID_DB: Ndm
       CID_COLLECTION: Ndm19
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.frontend.rule=Host:cid.domain.tld'
-      - 'traefik.port=80'
-      - 'traefik.docker.network=wan'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1m
@@ -38,10 +35,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
 
 networks:
-  lan:
   wan:
-    name: traefik_wan
-    external: True
+  lan:
 
 volumes:
   checkindesk-db:
