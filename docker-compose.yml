@@ -36,6 +36,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test
+      interval: 1m
+      timeout: 30s
+      retries: 3
+      start_period: 0s
 
 networks:
   lan:
