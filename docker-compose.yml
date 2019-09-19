@@ -18,7 +18,7 @@ services:
       - 'traefik.enable=true'
       - 'traefik.frontend.rule=Host:cid.domain.tld'
       - 'traefik.port=80'
-      - 'traefik.docker.network=wan'
+      - 'traefik.docker.network=traefik_wan'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1m
