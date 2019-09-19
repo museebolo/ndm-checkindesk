@@ -1,7 +1,8 @@
 version: '3.7'
 services:
   site:
-    image: canelrom1/abcm-checkindesk:latest
+    build:
+      context: src
     #depends_on:
     #  - db
     networks:
