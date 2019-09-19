@@ -36,7 +36,7 @@ extension=mongo.so
 
 ## ToDo List
 * Faire un page pour visualiser les statistiques
-* Migrer ver PHP7
+* Migrer vers PHP7
 * Migrer dans un container alpine
 
 ## Change Log

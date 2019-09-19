@@ -14,11 +14,12 @@ services:
       CID_HOST: db
       CID_DB: Ndm
       CID_COLLECTION: Ndm19
+      CID_DATE: 21/09/2019
     labels:
       - 'traefik.enable=true'
       - 'traefik.frontend.rule=Host:cid.domain.tld'
       - 'traefik.port=80'
-      - 'traefik.docker.network=traefik_wan'
+      - 'traefik.docker.network=wan'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1m
@@ -46,7 +47,7 @@ services:
 networks:
   lan:
   wan:
-    name: traefik_wan
+    name: wan
     external: True
 
 volumes:
