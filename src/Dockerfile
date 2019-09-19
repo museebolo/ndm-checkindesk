@@ -15,6 +15,8 @@ RUN apt-get install -y libapache2-mod-php5.6 \
 
 COPY ./conf/php.ini /etc/php/5.6/apache2/php.ini
 
+ENV TZ Europe/Zurich
+
 RUN rm -fr /var/www/html
 COPY ./www /var/www/html
 RUN chown www-data:www-data -R /var/www/html

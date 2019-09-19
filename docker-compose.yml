@@ -16,6 +16,7 @@ services:
       CID_DB: Ndm
       CID_COLLECTION: Ndm19
       CID_DATE: 21/09/2019
+      TZ: Europe/Zurich
     labels:
       - 'traefik.enable=true'
       - 'traefik.frontend.rule=Host:cid.domain.tld'
@@ -38,6 +39,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+      TZ: Europe/Zurich
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test
       interval: 1m
