@@ -1,15 +1,16 @@
-abcm-checkindesk
-----------------
+# abcm-checkindesk
 
-Author : Guillaume
+Creator :    Guillaume
+
+Maintenance: Rom1
 
 Requirements : 
+* Apache 2.x
+* Mongodb for persistence
 
-o Apache 2.x
-o Mongodb for persistence
-
-Apache Virtualhost : 
---------------------
+## Configuration
+Ancienne configuration. A modier pour Docker
+### Apache Virtualhost : 
 <Directory /var/www/ndm/>
         AuthType Basic
         AuthName "Autorisation requise"
@@ -25,12 +26,19 @@ Apache Virtualhost :
         CustomLog /var/log/apache2/ndm<changeme>.log common
 </VirtualHost>
 
-Mongo php driver:
------------------
+### Mongo php driver:
 pecl install mongo
 
-PHP.ini:
---------
-
+### PHP.ini:
 short_open_tag = On
+
 extension=mongo.so
+
+## ToDo List
+* Faire un page pour visualiser les statistiques
+* Migrer ver PHP7
+* Migrer dans un container alpine
+
+## Change Log
+* Adaptation pour Docker (Rom1)
+* Création (Guillaume)
