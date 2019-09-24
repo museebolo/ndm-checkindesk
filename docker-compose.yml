@@ -28,6 +28,9 @@ services:
       timeout: 30s
       retries: 3
       start_period: 0s
+    ports:
+      - 8082:80
+
 
   db:
     image: mongo
@@ -51,7 +54,6 @@ networks:
   lan:
   wan:
     name: wan
-    external: True
 
 volumes:
   checkindesk-db:
