@@ -1,60 +1,21 @@
-version: '3.7'
 services:
-  site:
-    build:
-      context: src
-    #depends_on:
-    #  - db
-    networks:
-      - lan
-      - wan
+  compteur:
+    build: .
+    image: compteur-py:v8
+    restart: unless-stopped
+    ports:
+      - "8020:8080"
     environment:
-      CID_USER: root
-      CID_PWD: password
-      #CID_PORT: 27017
-      CID_HOST: db
-      CID_DB: Ndm
-      CID_COLLECTION: Ndm19
-      CID_DATE: 21/09/2019
-      TZ: Europe/Zurich
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.frontend.rule=Host:cid.domain.tld'
-      - 'traefik.port=80'
-      - 'traefik.docker.network=wan'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 1m
-      timeout: 30s
-      retries: 3
-      start_period: 0s
-
-  db:
-    image: mongo
-    restart: always
-    networks:
-      - lan
+      - DATA_PATH=/data/state.json
+      - PORT=8080
+      - YEAR=2025
     volumes:
-      - checkindesk-db:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      TZ: Europe/Zurich
+      - compteur_data:/data
+      - ./config.yaml:/config/config.yaml:ro
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test
-      interval: 1m
-      timeout: 30s
-      retries: 3
-      start_period: 0s
-
-networks:
-  lan:
-  wan:
-    name: wan
-    external: True
-
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/healthz').read()==b'ok' else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 volumes:
-  checkindesk-db:
-    driver: local
-
-# vim: ft=yaml tw=80 et ts=2 sw=2 sts=2
+  compteur_data:

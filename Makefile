@@ -9,7 +9,7 @@ build: src/Dockerfile
 	docker tag $(prefix)/$(name):$(tag) $(prefix)/$(name):latest 
 
 run:
-	docker run -d -p 80:80 --name $(name) $(prefix)/$(name):latest
+	docker run -d -p 80:8080 --name $(name) $(prefix)/$(name):latest
 
 rm:
 	docker stop $(name)
