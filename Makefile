@@ -1,11 +1,11 @@
 prefix  ?= canelrom1
-name    ?= abcm-checkindesk
+name    ?= ndm-checkindesk
 tag     ?= $(shell date +%Y%m%d.%H%M%S)
 
 all: build
 
-build: src/Dockerfile
-	docker build -t $(prefix)/$(name):$(tag) src
+build: Dockerfile
+	docker build -t $(prefix)/$(name):$(tag) . 
 	docker tag $(prefix)/$(name):$(tag) $(prefix)/$(name):latest 
 
 run:
