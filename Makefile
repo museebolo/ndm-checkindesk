@@ -1,19 +1,31 @@
-prefix  ?= canelrom1
-name    ?= ndm-checkindesk
-tag     ?= $(shell date +%Y%m%d.%H%M%S)
+#-----------------------------------------------------------------------------------------------------------------------
+# Makefile for NdM CheckInDesk
+#-----------------------------------------------------------------------------------------------------------------------
+
+prefix    ?= canelrom1
+name      ?= ndm-checkindesk
+tag       ?= $(shell date +%Y%m%d.%H%M%S)
 
 VENV      ?= build
 PY        := $(VENV)/bin/python
 PIP       := $(VENV)/bin/pip
 DATA_PATH ?= /tmp/state-test.json
 
+APP       ?= main:app
+PORT      ?= 8080
+
+YEAR      := $(shell date +%Y)
+
 .PHONY: py-venv py-deps-install py-deps-outdated py-deps-audit py-deps-check \
-        py-test py-test-unit py-test-api py-lint py-format py-check py-ci py-run py-clean-venv
+        py-test py-test-unit py-test-api py-lint py-format py-check py-ci py-run py-clean-venv \
+        build run rm up down
 
 all: build
 
+# --- Docker ---
+
 build: Dockerfile
-	docker build -t $(prefix)/$(name):$(tag) . 
+	docker build --build-arg YEAR=$(YEAR) -t $(prefix)/$(name):$(tag) . 
 	docker tag $(prefix)/$(name):$(tag) $(prefix)/$(name):latest 
 
 run:
@@ -29,6 +41,8 @@ up:
 down:
 	docker-compose down
 
+# --- Python (sans Docker) ---
+
 # create a python virtual env 
 py-venv:
 	@test -d "$(VENV)" || python3 -m venv "$(VENV)"
@@ -36,11 +50,11 @@ py-venv:
 
 # install requirements.txt
 py-deps-install: py-venv
-	@$(PIP) install -r requirements.txt
+	@$(PIP) install -e .
 
 # for development & testing
 py-deps-dev: py-deps-install
-	@$(PIP) install -q pytest httpx ruff
+	@$(PIP) install -e ".[dev]"
 
 # check for outdated packages
 py-deps-outdated: py-deps-install
@@ -51,7 +65,7 @@ py-deps-outdated: py-deps-install
 py-deps-audit: py-deps-install
 	@$(PIP) install -q pip-audit
 	@echo "-> Security audit (fails on findings) <-"
-	@$(VENV)/bin/pip-audit -r requirements.txt
+	@$(VENV)/bin/pip-audit
 
 # do all checks
 py-deps-check: py-deps-outdated py-deps-audit
@@ -63,6 +77,7 @@ py-lint: py-deps-dev
 
 py-format: py-deps-dev
 	@$(PY) -m ruff format .
+	@$(PY) -m black .
 
 # --- tests ---
 
@@ -83,7 +98,7 @@ py-ci: py-lint py-test py-deps-audit
 	@echo "✅ CI target ok."
 
 py-run: py-deps-install
-	@DATA_PATH="$(DATA_PATH)" $(VENV)/bin/uvicorn main:app --reload --port 8080
+	@DATA_PATH="$(DATA_PATH)" $(VENV)/bin/uvicorn $(APP) --reload --port $(PORT)
 
 # clean
 py-clean-venv:
