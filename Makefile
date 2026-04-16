@@ -11,7 +11,7 @@ PY        := $(VENV)/bin/python
 PIP       := $(VENV)/bin/pip
 DATA_PATH ?= /tmp/state-test.json
 
-APP       ?= main:app
+APP       ?= app.main:app
 PORT      ?= 8080
 
 YEAR      := $(shell date +%Y)

@@ -53,8 +53,9 @@ def healthz():
 async def index(request: Request):
     snap = state.snapshot()
     return templates.TemplateResponse(
-        "index.html",
-        {
+        request=request,
+        name="index.html",
+        context={
             "request": request,
             "entries": snap["entries"],
             "tickets": snap["tickets"],
