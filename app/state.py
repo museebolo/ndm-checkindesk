@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 import os
 import tempfile
@@ -21,7 +22,7 @@ class State:
                     data = json.load(f)
                     self.entries = int(data.get("entries", 0))
                     self.tickets = int(data.get("tickets", 0))
-        except Exception:
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
             self.entries, self.tickets = 0, 0
 
     def save(self):
@@ -37,11 +38,7 @@ class State:
                 )
             os.replace(tmp_name, self.path)
         finally:
-            try:
-                if os.path.exists(tmp_name):
-                    os.remove(tmp_name)
-            except Exception:
-                pass
+            Path(tmp_name).unlink(missing_ok=True)
 
     def update(self, key: str, delta: int) -> dict:
         with self.lock:

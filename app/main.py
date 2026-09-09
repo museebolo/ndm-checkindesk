@@ -1,11 +1,14 @@
 from __future__ import annotations
+
 import os
 from pathlib import Path
+
 import yaml
-from fastapi import FastAPI, Request, Form, HTTPException, status
+from fastapi import FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
 from app.state import State
 
 DATA_PATH = os.getenv("DATA_PATH", "/data/state.json")
@@ -25,7 +28,7 @@ def reload_config_values():
         try:
             with cfg_file.open("r", encoding="utf-8") as f:
                 cfg = yaml.safe_load(f) or {}
-        except Exception as e:
+        except (OSError, yaml.YAMLError) as e:
             print(f"[warn] erreur lecture config.yaml: {e}")
     title = cfg.get("title") or f"Nuit des Musées {YEAR}"
     ox = cfg.get("offset_x") or os.getenv("OFFSET_X", "50%")
