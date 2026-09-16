@@ -5,115 +5,443 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ title }}</title>
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+
   <style>
-    :root { --fg:#e5e7eb; --muted:#cbd5e1; --card:#111217cc; }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin:0;
-      min-height:100vh;
-      font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial;
-      color:var(--fg);
-      background: #0b0a0a url('/static/fond.png') center center / cover no-repeat fixed;
+    :root {
+      --fg: #e5e7eb;
+      --muted: #cbd5e1;
+      --card: #111217cc;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, Segoe UI, Roboto, Ubuntu, Arial;
+      color: var(--fg);
+      background:
+        #0b0a0a
+        url('/static/fond.png')
+        center center / cover no-repeat fixed;
+    }
+
     .wrap {
-      position:absolute;
+      position: absolute;
       left: {{ offset_x }};
       top: {{ offset_y }};
       transform: translate(-50%, -50%);
-      width:min(92vw, 820px);
-      padding:28px;
-      background:var(--card);
-      border-radius:20px;
+      width: min(92vw, 900px);
+      padding: 32px;
+      background: var(--card);
+      border-radius: 20px;
       backdrop-filter: blur(6px);
       box-shadow: 0 10px 30px #0008;
     }
-    h1 { margin:0 0 6px; font-weight:800; font-size:28px; letter-spacing:0.2px; text-align:center; }
-    .subtitle { margin:0 0 18px; font-size:14px; color:#cbd5e1aa; text-align:center; }
-    .row { padding:12px; background:#0f1115; border-radius:14px; display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; }
-    .label { color:var(--muted); font-size:14px; }
-    .value { font-variant-numeric:tabular-nums; font-size:28px; font-weight:800; }
-    button { appearance:none; border:0; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer; background:#2a2d34; color:var(--fg); }
-    button.inc { background:#1d3d2b; }
-    button.dec { background:#4a2225; }
-    .big-total { margin-top:24px; text-align:center; font-size:64px; font-weight:900; }
+
+    h1 {
+      margin: 0 0 8px;
+      font-weight: 800;
+      font-size: 34px;
+      letter-spacing: 0.2px;
+      text-align: center;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      font-size: 14px;
+      color: #cbd5e1aa;
+      text-align: center;
+    }
+
+    .row {
+      padding: 18px 20px;
+      background: #0f1115;
+      border-radius: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .row + .row {
+      margin-top: 12px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .value {
+      font-variant-numeric: tabular-nums;
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      width: 64px;
+      height: 64px;
+      padding: 0;
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--fg);
+    }
+
+    button.inc {
+      background: #1d3d2b;
+    }
+
+    button.dec {
+      background: #4a2225;
+    }
+
+    .total-label {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .big-total {
+      text-align: center;
+      font-size: 76px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .ticket-summary {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .ticket-summary strong {
+      color: var(--fg);
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+    }
+
     /* Actions bottom-right */
+
     .actions {
       position: fixed;
-      right: 20px;
-      bottom: 20px;
+      right: 80px;
+      bottom: 40px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       z-index: 100;
     }
-    .reset-btn { padding:12px 20px; border-radius:10px; font-weight:800; background:#552222; color:white; cursor:pointer; }
-    .reload-btn { padding:10px 16px; border-radius:10px; font-weight:800; background:#225555; color:white; cursor:pointer; }
+
+    .reset-btn {
+	  min-width: 320px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 800;
+      background: #552222;
+      color: white;
+      cursor: pointer;
+    }
+
+    .reload-btn {
+	  min-width: 320px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 800;
+      background: #225555;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
+
 <body>
+
   <div class="wrap">
+
     <h1>{{ title }}</h1>
-    <p class="subtitle">Entrées & Billets</p>
+
+    <p class="subtitle">
+      Entrées{% if ticket_sales_enabled %} & Billets{% endif %}
+    </p>
+
+    <!-- Children -->
 
     <div class="row">
       <div>
-        <div class="label">Entrées</div>
-        <div class="value" id="entries-value">{{ entries }}</div>
+        <div class="label">Enfants</div>
+        <div
+          class="value"
+          id="children-entries-value"
+        >{{ children_entries }}</div>
       </div>
-      <form hx-post="/update" hx-trigger="submit" hx-swap="none">
-        <input type="hidden" name="key" value="entries" />
-        <input type="hidden" name="delta" value="-1" />
-        <button class="dec" type="submit">−</button>
+
+      <form
+        hx-post="/update"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="key"
+          value="children_entries"
+        />
+        <input
+          type="hidden"
+          name="delta"
+          value="-1"
+        />
+        <button
+          class="dec"
+          type="submit"
+        >−</button>
       </form>
-      <form hx-post="/update" hx-trigger="submit" hx-swap="none">
-        <input type="hidden" name="key" value="entries" />
-        <input type="hidden" name="delta" value="+1" />
-        <button class="inc" type="submit">+</button>
+
+      <form
+        hx-post="/update"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="key"
+          value="children_entries"
+        />
+        <input
+          type="hidden"
+          name="delta"
+          value="+1"
+        />
+        <button
+          class="inc"
+          type="submit"
+        >+</button>
       </form>
     </div>
 
-    <div class="row" style="margin-top:12px">
+    <!-- Adults -->
+
+    <div class="row">
       <div>
-        <div class="label">Billets</div>
-        <div class="value" id="tickets-value">{{ tickets }}</div>
+        <div class="label">Adultes</div>
+        <div
+          class="value"
+          id="adult-entries-value"
+        >{{ adult_entries }}</div>
       </div>
-      <form hx-post="/update" hx-trigger="submit" hx-swap="none">
-        <input type="hidden" name="key" value="tickets" />
-        <input type="hidden" name="delta" value="-1" />
-        <button class="dec" type="submit">−</button>
+
+      <form
+        hx-post="/update"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="key"
+          value="adult_entries"
+        />
+        <input
+          type="hidden"
+          name="delta"
+          value="-1"
+        />
+        <button
+          class="dec"
+          type="submit"
+        >−</button>
       </form>
-      <form hx-post="/update" hx-trigger="submit" hx-swap="none">
-        <input type="hidden" name="key" value="tickets" />
-        <input type="hidden" name="delta" value="+1" />
-        <button class="inc" type="submit">+</button>
+
+      <form
+        hx-post="/update"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="key"
+          value="adult_entries"
+        />
+        <input
+          type="hidden"
+          name="delta"
+          value="+1"
+        />
+        <button
+          class="inc"
+          type="submit"
+        >+</button>
       </form>
     </div>
 
-    <div id="state" class="big-total">
-      {{ total }}
+    <!-- Adult ticket sales -->
+
+    {% if ticket_sales_enabled %}
+
+    <div class="row">
+      <div>
+        <div class="label">Billets adultes vendus</div>
+        <div
+          class="value"
+          id="adult-tickets-sold-value"
+        >{{ adult_tickets_sold }}</div>
+      </div>
+
+      <form
+        hx-post="/sell-adult-ticket"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="delta"
+          value="-1"
+        />
+        <button
+          class="dec"
+          type="submit"
+        >−</button>
+      </form>
+
+      <form
+        hx-post="/sell-adult-ticket"
+        hx-trigger="submit"
+        hx-swap="none"
+      >
+        <input
+          type="hidden"
+          name="delta"
+          value="+1"
+        />
+        <button
+          class="inc"
+          type="submit"
+        >+</button>
+      </form>
     </div>
+
+    {% endif %}
+
+    <!-- Total -->
+
+    <div class="total-label">
+      Total des entrées
+    </div>
+
+    <div
+      id="total-entries-value"
+      class="big-total"
+    >{{ total_entries }}</div>
+
+    {% if ticket_sales_enabled %}
+
+    <div class="ticket-summary">
+      Billets adultes vendus :
+      <strong id="adult-tickets-sold-summary">
+        {{ adult_tickets_sold }}
+      </strong>
+    </div>
+
+    {% endif %}
+
   </div>
 
   <!-- Actions floating bottom-right -->
+
   <div class="actions">
-    <form hx-post="/reset" hx-trigger="submit" hx-swap="none" onsubmit="return confirm('Remettre à zéro les compteurs ?');">
-      <button type="submit" class="reset-btn">Reset</button>
+
+    <form
+      hx-post="/reset"
+      hx-trigger="submit"
+      hx-swap="none"
+      onsubmit="return confirm('Remettre à zéro les compteurs ?');"
+    >
+      <button
+        type="submit"
+        class="reset-btn"
+      >Reset</button>
     </form>
-    <form hx-post="/reload-config" hx-trigger="submit" hx-swap="none" hx-on::after-request="if (event.detail.successful) location.reload()">
-      <button type="submit" class="reload-btn">Reload Config</button>
+
+    <form
+      hx-post="/reload-config"
+      hx-trigger="submit"
+      hx-swap="none"
+      hx-on::after-request="
+        if (event.detail.successful) location.reload()
+      "
+    >
+      <button
+        type="submit"
+        class="reload-btn"
+      >Reload Config</button>
     </form>
+
   </div>
 
   <script>
     document.addEventListener('htmx:afterOnLoad', function(evt) {
       try {
         const d = JSON.parse(evt.detail.xhr.responseText);
-        if (typeof d.entries !== 'undefined') { document.getElementById('entries-value').textContent = d.entries; }
-        if (typeof d.tickets !== 'undefined') { document.getElementById('tickets-value').textContent = d.tickets; }
-        if (typeof d.total !== 'undefined')   { document.getElementById('state').textContent = d.total; }
-      } catch(e) { /* no-op */ }
+
+        if (typeof d.children_entries !== 'undefined') {
+          document.getElementById(
+            'children-entries-value'
+          ).textContent = d.children_entries;
+        }
+
+        if (typeof d.adult_entries !== 'undefined') {
+          document.getElementById(
+            'adult-entries-value'
+          ).textContent = d.adult_entries;
+        }
+
+        if (typeof d.adult_tickets_sold !== 'undefined') {
+          const value = document.getElementById(
+            'adult-tickets-sold-value'
+          );
+
+          const summary = document.getElementById(
+            'adult-tickets-sold-summary'
+          );
+
+          if (value) {
+            value.textContent = d.adult_tickets_sold;
+          }
+
+          if (summary) {
+            summary.textContent = d.adult_tickets_sold;
+          }
+        }
+
+        if (typeof d.total_entries !== 'undefined') {
+          document.getElementById(
+            'total-entries-value'
+          ).textContent = d.total_entries;
+        }
+
+      } catch (e) {
+        /* Response does not contain counter state. */
+      }
     });
   </script>
+
 </body>
 </html>

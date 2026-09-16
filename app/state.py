@@ -5,61 +5,122 @@ import os
 import tempfile
 import threading
 from pathlib import Path
+from typing import ClassVar
 
 
 class State:
+    VALID_KEYS: ClassVar[frozenset[str]] = frozenset(
+        {"children_entries", "adult_entries"}
+    )
+
     def __init__(self, data_path: str):
         self.path = Path(data_path)
         self.lock = threading.Lock()
-        self.entries = 0
-        self.tickets = 0
-        self.load()
 
-    def load(self):
+        self.children_entries = 0
+        self.adult_entries = 0
+        self.adult_tickets_sold = 0
+        self._load()
+
+    def _load(self) -> None:
         try:
             if self.path.exists():
                 with self.path.open("r", encoding="utf-8") as f:
                     data = json.load(f)
-                    self.entries = int(data.get("entries", 0))
-                    self.tickets = int(data.get("tickets", 0))
-        except (OSError, json.JSONDecodeError, TypeError, ValueError):
-            self.entries, self.tickets = 0, 0
 
-    def save(self):
+                self.children_entries = int(data.get("children_entries", 0))
+                self.adult_entries = int(data.get("adult_entries", 0))
+                self.adult_tickets_sold = int(data.get("adult_tickets_sold", 0))
+
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            self.children_entries = 0
+            self.adult_entries = 0
+            self.adult_tickets_sold = 0
+
+    def _save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        fd, tmp_name = tempfile.mkstemp(prefix=self.path.name, dir=self.path.parent)
+
+        data = {
+            "children_entries": self.children_entries,
+            "adult_entries": self.adult_entries,
+            "adult_tickets_sold": self.adult_tickets_sold,
+        }
+
+        fd, tmp_name = tempfile.mkstemp(
+            dir=self.path.parent,
+            prefix=f".{self.path.name}.",
+            suffix=".tmp",
+        )
+
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
-                json.dump(
-                    {"entries": self.entries, "tickets": self.tickets},
-                    f,
-                    ensure_ascii=False,
-                    indent=2,
-                )
+                json.dump(data, f, indent=2)
+                f.write("\n")
+                f.flush()
+                os.fsync(f.fileno())
+
             os.replace(tmp_name, self.path)
+
         finally:
             Path(tmp_name).unlink(missing_ok=True)
 
-    def update(self, key: str, delta: int) -> dict:
+    def _state(self) -> dict:
+        return {
+            "children_entries": self.children_entries,
+            "adult_entries": self.adult_entries,
+            "adult_tickets_sold": self.adult_tickets_sold,
+            "total_entries": (self.children_entries + self.adult_entries),
+        }
+
+    def get(self) -> dict:
         with self.lock:
-            if key == "entries":
-                self.entries = max(0, self.entries + delta)
-            elif key == "tickets":
-                self.tickets = max(0, self.tickets + delta)
-            else:
-                raise ValueError("bad key")
-            self.save()
-            return self.snapshot()
+            return self._state()
+
+    def update(self, key: str, delta: int) -> dict:
+        """Update a simple entry counter."""
+
+        if key not in self.VALID_KEYS:
+            raise ValueError(f"Unknown counter: {key}")
+
+        with self.lock:
+            value = getattr(self, key)
+            value = max(0, value + delta)
+
+            setattr(self, key, value)
+
+            self._save()
+
+            return self._state()
+
+    def sell_adult_ticket(self, delta: int = 1) -> dict:
+        """
+        Register or cancel an adult ticket sale.
+
+        Selling a ticket also counts as an adult entry.
+        """
+        if delta not in {-1, 1}:
+            raise ValueError("delta must be -1 or 1")
+
+        with self.lock:
+            if delta > 0:
+                self.adult_tickets_sold += 1
+                self.adult_entries += 1
+            elif self.adult_tickets_sold > 0:
+                self.adult_tickets_sold -= 1
+                self.adult_entries = max(0, self.adult_entries - 1)
+
+            self._save()
+
+            return self._state()
 
     def reset(self) -> dict:
+        """Reset all counters to zero."""
         with self.lock:
-            self.entries, self.tickets = 0, 0
-            self.save()
-            return self.snapshot()
+            self.children_entries = 0
+            self.adult_entries = 0
+            self.adult_tickets_sold = 0
+            self._save()
+            return self._state()
 
     def snapshot(self) -> dict:
-        return {
-            "entries": self.entries,
-            "tickets": self.tickets,
-            "total": self.entries + self.tickets,
-        }
+        return self.get()
