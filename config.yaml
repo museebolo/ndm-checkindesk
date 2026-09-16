@@ -1,7 +1,7 @@
 title: "Nuit des Musées 2026"
 
 counters:
-  ticket_sales_enabled: true
+  ticket_sales_enabled: false 
 
 offset_x: "42%"
 offset_y: "42%"
